@@ -1,0 +1,20 @@
+name: OnimaGames
+author: Jestiz
+main: net.onima.onimagames.OnimaGames
+version: 1.0
+description: Games
+depend: [OnimaAPI, OnimaFaction]
+
+commands:
+  game:
+    description: Commande principale pour les events.
+  koth:
+    description: Commande principale pour les KoTH.
+  conquest:
+    description: Command principale pour les Conquest.
+  citadel:
+    description: Command principale pour les Citadel.
+  dtc:
+    description: Command principale pour les DTC.
+  dragon:
+    description: Command principale pour les events Dragon.
