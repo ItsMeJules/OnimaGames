@@ -61,7 +61,7 @@ public class GameFirstScheduleArgument extends BasicCommandArgument {
 	    }
 	    
 	    game.startTime(Month.of(date[1]), date[0], date[2], date[3]);
-		OnimaAPI.broadcast("§d§o" + sender.getName() + " §7a définit la date du premier lancement de l'event §d§o" + game.getGameType().getName() + ' ' + game.getName() + " §7pour §d§o" + new CasualFormatDate("d u m h:i").toNormalDate(game.getWhenItStarts()) + "§7.", OnimaPerm.GAME_FIRSTSCHEDULE_ARGUMENT);
+		OnimaAPI.broadcast("§d§o" + Methods.getRealName(sender) + " §7a définit la date du premier lancement de l'event §d§o" + game.getGameType().getName() + ' ' + game.getName() + " §7pour §d§o" + new CasualFormatDate("d u z h:i").toNormalDate(game.getWhenItStarts()) + "§7.", OnimaPerm.GAME_FIRSTSCHEDULE_ARGUMENT);
 		return true;
 	}
 

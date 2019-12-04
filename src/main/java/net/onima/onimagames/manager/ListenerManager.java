@@ -9,7 +9,6 @@ import net.onima.onimagames.listener.DTCListener;
 import net.onima.onimagames.listener.DragonListener;
 import net.onima.onimagames.listener.FactionEventListener;
 import net.onima.onimagames.listener.GameMotdListener;
-import net.onima.onimagames.listener.PlayerSetupListener;
 
 /**
  * This class handles all the bukkit's listeners.
@@ -26,7 +25,6 @@ public class ListenerManager {
 	}
 	
 	public void registerListener() {
-		pm.registerEvents(new PlayerSetupListener(), plugin);
 		pm.registerEvents(new CapableListener(), plugin);
 		pm.registerEvents(new DTCListener(), plugin);
 		pm.registerEvents(new DragonListener(), plugin);

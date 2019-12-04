@@ -253,7 +253,7 @@ public class Conquest extends Game {
             Location loc = cuboid.getWorld().getHighestBlockAt(cuboid.getMinimumLocation().add(-0.5, 0, -0.5)).getLocation();
             
             for (Player player : cuboid.getPlayers()) {
-            	if (APIPlayer.getByPlayer(player).getTimeLeft(PvPTimerCooldown.class) > 0L)
+            	if (APIPlayer.getPlayer(player).getTimeLeft(PvPTimerCooldown.class) > 0L)
             		player.teleport(loc);
             }
             
@@ -330,7 +330,7 @@ public class Conquest extends Game {
 			
 			if (zone.getCapTimeLeft() <= 0L) {
 				APIPlayer apiPlayer = zone.getCapper();
-				PlayerFaction faction = FPlayer.getByUuid(apiPlayer.getUUID()).getFaction();
+				PlayerFaction faction = FPlayer.getPlayer(apiPlayer.getUUID()).getFaction();
 				String factionName = faction.getName();
 				int factionPoints = getPoints(factionName) + zone.getPointsPerCap();
 				
@@ -367,7 +367,7 @@ public class Conquest extends Game {
 		      online.sendMessage("§7\u2588\u2588\u2588§a\u2588§7\u2588\u2588\u2588");
 		      online.sendMessage("§7\u2588\u2588§a\u2588§7\u2588§a\u2588§7\u2588\u2588 §7[§6" + name + "§7]");
 		      online.sendMessage("§7\u2588\u2588§a\u2588§7\u2588§a\u2588§7\u2588\u2588 §ecapturée par");
-		      online.sendMessage("§7\u2588§a\u2588\u2588\u2588\u2588\u2588§7\u2588 §7[" + OnimaFaction.getDisplay(FPlayer.getByUuid(winner.getUUID()), FPlayer.getByPlayer(online)) + "§7]§e" + winner.getName());
+		      online.sendMessage("§7\u2588§a\u2588\u2588\u2588\u2588\u2588§7\u2588 §7[" + OnimaFaction.getDisplay(FPlayer.getPlayer(winner.getUUID()), FPlayer.getPlayer(online)) + "§7]§e" + winner.getName());
 		      online.sendMessage("§7\u2588§a\u2588§7\u2588\u2588\u2588§a\u2588§7\u2588");
 		      online.sendMessage("§7\u2588§a\u2588§7\u2588\u2588\u2588§a\u2588§7\u2588");
 		      online.sendMessage("§7\u2588\u2588\u2588\u2588\u2588\u2588\u2588");
@@ -411,14 +411,15 @@ public class Conquest extends Game {
 			for (ConquestZone zone : zones) {
 				Player capper = Iterables.getFirst(zone.getCapZone().toCuboid().getPlayers(), null);
 				
-				zone.setCapper(capper == null ? null : APIPlayer.getByPlayer(capper));
+				if (capper != null)
+					zone.onCap(APIPlayer.getPlayer(capper));
 			}
 		}
 	}
 	
 	@Override
 	public void sendShow(CommandSender sender) {
-		boolean hasPerm = sender instanceof ConsoleCommandSender ? true : APIPlayer.getByPlayer((Player) sender).getRank().getRankType().hasPermission(OnimaPerm.GAME_SHOW_MOD);
+		boolean hasPerm = sender instanceof ConsoleCommandSender ? true : OnimaPerm.GAME_SHOW_MOD.has(sender);
 		
 		sender.sendMessage(ConfigurationService.STAIGHT_LINE);
 		sender.sendMessage("§7Event : §d§o" + type.getName() + ' ' + name + " §7- Créateur : §d§o" + creator + " §7- Monde : §d§o" + (region == null ? "§cAucun" : "§a" + region.getLocation1().getWorld().getName()));

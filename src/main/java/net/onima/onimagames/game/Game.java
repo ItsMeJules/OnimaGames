@@ -69,7 +69,7 @@ public abstract class Game implements FileSaver, Scheduler {
 		this.creator = creator;
 		path = "GAMES." + type.name() + '.' + name + '.';
 		created = System.currentTimeMillis();
-		key = new PhysicalKey(name, new NoBooster()); //Génerer une clef au hasard parmis toutes les crates quand qqun win ?
+		key = new PhysicalKey(name, new NoBooster()); //Générer une clef au hasard parmis toutes les crates quand qqun win ?
 		save();
 	}
 
@@ -217,15 +217,22 @@ public abstract class Game implements FileSaver, Scheduler {
 	public void save() {
 		games.add(this);
 		OnimaAPI.getScheduled().add(this);
+		OnimaAPI.getShutdownSavers().add(this);
 	}
 	
 	@Override
 	public void remove() {
 		games.remove(this);
 		OnimaAPI.getScheduled().remove(this);
+		OnimaAPI.getShutdownSavers().remove(this);
+		
 		region.remove();
-		if (isStarted()) startedGame = null;
-		if (games.size() == 0) gameSerialConfig.remove("GAMES", false);
+		
+		if (isStarted())
+			startedGame = null;
+		
+		if (games.size() == 0)
+			gameSerialConfig.remove("GAMES", false);
 	}
 	
 	@Override
@@ -235,7 +242,7 @@ public abstract class Game implements FileSaver, Scheduler {
 	
 	public void award(Player player) {
 		player.sendMessage("§dVous §eavez reçu une clef pour avoir remporté l'event. Allez au spawn pour ouvrir votre crate !");
-		key.give(APIPlayer.getByPlayer(player), false);
+		key.give(APIPlayer.getPlayer(player), false);
 	}
 	
 	private static void initGamesStuff(Game game, String path, int rewardSize) {

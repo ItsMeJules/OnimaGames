@@ -51,7 +51,7 @@ public class DTCSetBlockArgument extends BasicCommandArgument {
 		}
 		
 		DTC dtc = (DTC) game;
-		Wand wand = APIPlayer.getByPlayer((Player) sender).getWand();
+		Wand wand = APIPlayer.getPlayer((Player) sender).getWand();
 		
 		if (wand.getLocation1() == null && wand.getLocation2() == null) {
 			sender.sendMessage("§cVous devez sélectionner un block avec la wand !");

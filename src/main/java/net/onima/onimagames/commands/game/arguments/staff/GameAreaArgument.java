@@ -14,6 +14,7 @@ import net.onima.onimaapi.items.Wand;
 import net.onima.onimaapi.players.APIPlayer;
 import net.onima.onimaapi.rank.OnimaPerm;
 import net.onima.onimaapi.utils.JSONMessage;
+import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.commands.BasicCommandArgument;
 import net.onima.onimaapi.zone.Cuboid;
 import net.onima.onimaapi.zone.type.Region;
@@ -49,7 +50,7 @@ public class GameAreaArgument extends BasicCommandArgument {
 		}
 		
 		if (args[2].equalsIgnoreCase("set")) {
-			Wand wand = APIPlayer.getByPlayer((Player) sender).getWand();
+			Wand wand = APIPlayer.getPlayer((Player) sender).getWand();
 
 			if (!wand.hasAllLocationsSet()) {
 				sender.sendMessage("§cVous devez sélecionner une zone !");
@@ -62,7 +63,7 @@ public class GameAreaArgument extends BasicCommandArgument {
 
 			if (!Wand.validWorlds((Player) sender, loc1, loc2)) return false;
 			
-			Region region = new Region(game.getName() + "_area", game.getGameType().getName() + ' ' + game.getName(), sender.getName(), loc1, loc2);
+			Region region = new Region(game.getName() + "_area", game.getGameType().getName() + ' ' + game.getName(), Methods.getRealName(sender), loc1, loc2);
 			Cuboid cuboid = region.toCuboid();
 			
 			cuboid.expandVertical();
@@ -75,6 +76,11 @@ public class GameAreaArgument extends BasicCommandArgument {
 			
 			return true;
 		} else if (args[2].equalsIgnoreCase("remove")) {
+			if (game.getRegion() == null) {
+				sender.sendMessage("§c" + game.getName() + " n'a pas de zone.");
+				return false;
+			}
+			
 			sender.sendMessage("§d§oVous §7avez §d§osupprimé §7la zone pour la game §d§o" + game.getName());
 			game.getRegion().remove();
 			game.setRegion(null);

@@ -26,7 +26,7 @@ public class GameExecutor extends ArgumentExecutor {
 	private GameHelpArgument helpArgument;
 
 	public GameExecutor() {
-		super("game");
+		super("game", OnimaPerm.GAME_COMMAND);
 		
 		addArgument(new GameAreaArgument());
 		addArgument(new GameCreateArgument());

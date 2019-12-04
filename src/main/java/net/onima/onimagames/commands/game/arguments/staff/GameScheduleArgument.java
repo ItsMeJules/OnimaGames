@@ -11,6 +11,7 @@ import org.bukkit.util.StringUtil;
 import net.onima.onimaapi.OnimaAPI;
 import net.onima.onimaapi.rank.OnimaPerm;
 import net.onima.onimaapi.utils.JSONMessage;
+import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.commands.BasicCommandArgument;
 import net.onima.onimaapi.utils.time.Time.LongTime;
 import net.onima.onimaapi.utils.time.TimeUtils;
@@ -48,7 +49,7 @@ public class GameScheduleArgument extends BasicCommandArgument {
 		}
 		
 		game.scheduleEvery(time);
-		OnimaAPI.broadcast("§d§o" + sender.getName() + " §7a programmé l'event §d§o" + game.getGameType().getName() + ' ' + game.getName() + " §7pour chaque §d§o" + LongTime.setYMDWHMSFormat(time) + "§7.", OnimaPerm.GAME_SCHEDULE_ARGUMENT);
+		OnimaAPI.broadcast("§d§o" + Methods.getRealName(sender) + " §7a programmé l'event §d§o" + game.getGameType().getName() + ' ' + game.getName() + " §7pour chaque §d§o" + LongTime.setYMDWHMSFormat(time) + "§7.", OnimaPerm.GAME_SCHEDULE_ARGUMENT);
 		return true;
 	}
 	

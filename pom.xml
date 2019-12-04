@@ -27,14 +27,14 @@
     
     <dependency>
       <groupId>net.onima</groupId>
-      <artifactId>onimaFaction</artifactId>
+      <artifactId>OnimaFaction</artifactId>
       <version>0.0.1-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     
     <dependency>
       <groupId>net.onima</groupId>
-      <artifactId>OnimaAPI</artifactId>
+      <artifactId>OnimaAPI-NoSQL</artifactId>
       <version>0.0.1-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>

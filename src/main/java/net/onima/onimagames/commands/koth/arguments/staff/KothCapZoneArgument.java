@@ -14,6 +14,7 @@ import net.onima.onimaapi.items.Wand;
 import net.onima.onimaapi.players.APIPlayer;
 import net.onima.onimaapi.rank.OnimaPerm;
 import net.onima.onimaapi.utils.JSONMessage;
+import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.commands.BasicCommandArgument;
 import net.onima.onimaapi.zone.Cuboid;
 import net.onima.onimaapi.zone.type.Region;
@@ -56,7 +57,7 @@ public class KothCapZoneArgument extends BasicCommandArgument {
 		Koth koth = (Koth) game;
 		
 		if (args[2].equalsIgnoreCase("set")) {
-			Wand wand = APIPlayer.getByPlayer((Player) sender).getWand();
+			Wand wand = APIPlayer.getPlayer((Player) sender).getWand();
 
 			if (!wand.hasAllLocationsSet()) {
 				sender.sendMessage("§cVous devez sélecionner une zone !");
@@ -69,15 +70,22 @@ public class KothCapZoneArgument extends BasicCommandArgument {
 
 			if (!Wand.validWorlds((Player) sender, loc1, loc2)) return false;
 			
-			Region region = new Region(game.getName() + "_capzone", game.getName() + " CapZone", sender.getName(), loc1, loc2);
+			Region region = new Region(game.getName() + "_capzone", game.getName() + " CapZone", Methods.getRealName(sender), loc1, loc2);
 			Cuboid cuboid = region.toCuboid();
 			
+			region.setPriority(koth.getRegion().getPriority() + 1);
 			cuboid.expandVertical();
+			
 			sender.sendMessage("§d§oVous §7avez §d§odéfini §7la zone de cap pour le §d§o" + GameType.KOTH.getName() + ' ' + game.getName() + "§7.");
 			koth.setCapZone(region);
 			koth.setLocation(cuboid.getCenterLocation());
 			return true;
 		} else if (args[2].equalsIgnoreCase("remove")) {
+			if (koth.getCapZone() == null) {
+				sender.sendMessage("§c" + game.getName() + " n'a pas de zone de cap.");
+				return false;
+			}
+			
 			sender.sendMessage("§d§oVous §7avez §d§osupprimé §7la zone pour le §d§o" + GameType.KOTH.getName() + ' ' + game.getName() + "§7.");
 			koth.getCapZone().remove();
 			koth.setCapZone(null);

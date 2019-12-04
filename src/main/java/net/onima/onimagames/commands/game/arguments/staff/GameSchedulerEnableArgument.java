@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import net.onima.onimaapi.OnimaAPI;
 import net.onima.onimaapi.rank.OnimaPerm;
 import net.onima.onimaapi.utils.JSONMessage;
+import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.commands.BasicCommandArgument;
 import net.onima.onimagames.game.Game;
 
@@ -35,7 +36,7 @@ public class GameSchedulerEnableArgument extends BasicCommandArgument {
 		}
 		
 		game.setSchedulerEnabled(!game.isSchedulerEnabled());
-		OnimaAPI.broadcast("§d§o" + sender.getName() + " §7a " + (game.isSchedulerEnabled() ? "§aactivé" : "§cdésactivé") + "§7le scheduler de l'event §d§o" + game.getGameType().getName() + ' ' + game.getName() + "§7.", OnimaPerm.GAME_ENABLESCHEDULER_ARGUMENT);
+		OnimaAPI.broadcast("§d§o" + Methods.getRealName(sender) + " §7a " + (game.isSchedulerEnabled() ? "§aactivé" : "§cdésactivé") + "§7le scheduler de l'event §d§o" + game.getGameType().getName() + ' ' + game.getName() + "§7.", OnimaPerm.GAME_ENABLESCHEDULER_ARGUMENT);
 		return false;
 	}
 

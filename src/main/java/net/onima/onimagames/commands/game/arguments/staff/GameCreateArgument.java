@@ -9,6 +9,7 @@ import org.bukkit.util.StringUtil;
 
 import net.onima.onimaapi.rank.OnimaPerm;
 import net.onima.onimaapi.utils.JSONMessage;
+import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.commands.BasicCommandArgument;
 import net.onima.onimafaction.faction.Faction;
 import net.onima.onimagames.game.GameType;
@@ -46,19 +47,19 @@ public class GameCreateArgument extends BasicCommandArgument {
 		
 		switch (type) {
 		case CITADEL:
-			new Citadel(args[1], sender.getName());
+			new Citadel(args[1], Methods.getRealName(sender));
 			break;
 		case CONQUEST:
-			new Conquest(args[1], sender.getName());
+			new Conquest(args[1], Methods.getRealName(sender));
 			break;
 		case DRAGON_EVENT:
-			new Dragon(args[1], sender.getName());
+			new Dragon(args[1], Methods.getRealName(sender));
 			break;
 		case DTC:
-			new DTC(args[1], sender.getName());
+			new DTC(args[1], Methods.getRealName(sender));
 			break;
 		case KOTH:
-			new Koth(args[1], sender.getName());
+			new Koth(args[1], Methods.getRealName(sender));
 			break;
 		default:
 			return false; //Never happens

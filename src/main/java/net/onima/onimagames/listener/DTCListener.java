@@ -26,7 +26,7 @@ public class DTCListener implements Listener {
 			DTC dtc = (DTC) game;
 			
 			if (Methods.locationEquals(dtc.getLocation(), block.getLocation())) {
-				FPlayer fPlayer = FPlayer.getByPlayer(player);
+				FPlayer fPlayer = FPlayer.getPlayer(player);
 				PlayerFaction faction = fPlayer.getFaction();
 				
 				event.setCancelled(true);

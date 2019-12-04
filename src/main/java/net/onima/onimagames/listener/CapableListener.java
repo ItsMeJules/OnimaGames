@@ -63,7 +63,7 @@ public class CapableListener implements Listener { //TODO A améliorer
 					CapableKnockEvent knockEvent = null;
 					
 					if (Methods.hasGotLastDamageByPlayer(apiPlayer.toPlayer()))
-						knockEvent = new CapableKnockEvent(capable, APIPlayer.getByPlayer((Player) ((EntityDamageByEntityEvent) apiPlayer.toPlayer().getLastDamageCause()).getDamager()), apiPlayer);
+						knockEvent = new CapableKnockEvent(capable, APIPlayer.getPlayer((Player) ((EntityDamageByEntityEvent) apiPlayer.toPlayer().getLastDamageCause()).getDamager()), apiPlayer);
 					else
 						knockEvent = new CapableKnockEvent(capable, null, apiPlayer);
 						
@@ -80,7 +80,8 @@ public class CapableListener implements Listener { //TODO A améliorer
 		
 		if (game instanceof Conquest) {
 			Player player = event.getEntity();
-			PlayerFaction faction = FPlayer.getByPlayer(player).getFaction();
+			FPlayer fPlayer = FPlayer.getPlayer(player);
+			PlayerFaction faction = fPlayer.getFaction();
 			
 			if (faction == null) return;
 			
@@ -88,7 +89,7 @@ public class CapableListener implements Listener { //TODO A améliorer
 			String factionName = faction.getName();
 			
 			if (conquest.getPoints(factionName) > 0)
-				Bukkit.broadcastMessage("§e" + factionName + " §7a perdu §e" + ConfigurationService.CONQUEST_POINTS_DEATH + " §7points parce que §e" + player.getName() + " §7est mort. §7Ils ont maintenant " + conquest.removePoints(factionName, ConfigurationService.CONQUEST_POINTS_DEATH) + '.');
+				Bukkit.broadcastMessage("§e" + factionName + " §7a perdu §e" + ConfigurationService.CONQUEST_POINTS_DEATH + " §7points parce que §e" + fPlayer.getApiPlayer().getName() + " §7est mort. §7Ils ont maintenant " + conquest.removePoints(factionName, ConfigurationService.CONQUEST_POINTS_DEATH) + '.');
 		}
 	}
 

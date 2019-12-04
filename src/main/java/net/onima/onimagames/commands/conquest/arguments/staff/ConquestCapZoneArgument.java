@@ -15,6 +15,7 @@ import net.onima.onimaapi.items.Wand;
 import net.onima.onimaapi.players.APIPlayer;
 import net.onima.onimaapi.rank.OnimaPerm;
 import net.onima.onimaapi.utils.JSONMessage;
+import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.commands.BasicCommandArgument;
 import net.onima.onimaapi.zone.Cuboid;
 import net.onima.onimaapi.zone.type.Region;
@@ -65,7 +66,7 @@ public class ConquestCapZoneArgument extends BasicCommandArgument {
 		}
 		
 		if (args[3].equalsIgnoreCase("set")) {
-			Wand wand = APIPlayer.getByPlayer((Player) sender).getWand();
+			Wand wand = APIPlayer.getPlayer((Player) sender).getWand();
 
 			if (!wand.hasAllLocationsSet()) {
 				sender.sendMessage("§cVous devez sélecionner une zone !");
@@ -78,16 +79,24 @@ public class ConquestCapZoneArgument extends BasicCommandArgument {
 
 			if (!Wand.validWorlds((Player) sender, loc1, loc2)) return false;
 			
-			Region region = new Region(game.getName() + '_' + type.name() + "_color", "§7CapZone " + type.getName(), sender.getName(), loc1, loc2);
+			Region region = new Region(game.getName() + '_' + type.name() + "_color", "§7CapZone " + type.getName(), Methods.getRealName(sender), loc1, loc2);
 			Cuboid cuboid = region.toCuboid();
+			
+			region.setPriority(conquest.getRegion().getPriority() + 1);
+			cuboid.expandVertical();
+			
 			ConquestZone zone = new ConquestZone(conquest, type, label);
 			
-			cuboid.expandVertical();
 			zone.setCapZone(region);
 			conquest.addConquestZone(type, new ConquestZone(conquest, type, label));
 			sender.sendMessage("§d§oVous §7avez défini la zone de cap " + type.getName() + " §7du §d§o" + GameType.CONQUEST.getName() + ' ' + game.getName() + "§7.");
 			return true;
 		} else if (args[3].equalsIgnoreCase("remove")) {
+			if (conquest.getZone(type).getCapZone() == null) {
+				sender.sendMessage("§c" + type.getName() + " n'a pas de zone de cap.");
+				return false;
+			}
+			
 			conquest.getZone(type).getCapZone().remove();
 			conquest.removeZone(type);
 			sender.sendMessage("§d§oVous §7avez §d§osupprimé §7la zone de cap " + type.getName() + " §7du §d§o" + GameType.CONQUEST.getName() + ' ' + game.getName() + "§7.");

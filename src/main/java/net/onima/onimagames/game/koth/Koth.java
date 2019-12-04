@@ -154,7 +154,7 @@ public class Koth extends Game implements Capable {
             Location loc = cuboid.getWorld().getHighestBlockAt(cuboid.getMinimumLocation().add(-0.5, 0, -0.5)).getLocation();
             
             for (Player player : cuboid.getPlayers()) {
-            	if (APIPlayer.getByPlayer(player).getTimeLeft(PvPTimerCooldown.class) > 0L)
+            	if (APIPlayer.getPlayer(player).getTimeLeft(PvPTimerCooldown.class) > 0L)
             		player.teleport(loc);
             }
             
@@ -285,7 +285,7 @@ public class Koth extends Game implements Capable {
 		
 		capper.sendMessage("§eVous §7n'êtes plus entrain de capturer le KoTH !");
 		if ((capTime - capTimeLeft) > ConfigurationService.KOTH_KNOCK_ANNOUNCE_DELAY)
-			Bukkit.broadcastMessage("§e" + capper.getName() + " §7a été knock du KoTH (" + LongTime.setHMSFormatOnlySeconds(capTimeLeft) + ") !");
+			Bukkit.broadcastMessage("§e" + capper.getDisplayName() + " §7a été knock du KoTH (" + LongTime.setHMSFormatOnlySeconds(capTimeLeft) + ") !");
 
 		capper.setCapping(null);
 		
@@ -304,13 +304,14 @@ public class Koth extends Game implements Capable {
 		if (isStarted()) {
 			Player capper = Iterables.getFirst(capZone.toCuboid().getPlayers(), null);
 			
-			this.capper = capper == null ? null : APIPlayer.getByPlayer(capper);
+			if (capper != null)
+				onCap(APIPlayer.getPlayer(capper));
 		}
 	}
 	
 	@Override
 	public void sendShow(CommandSender sender) {
-		boolean hasPerm = sender instanceof ConsoleCommandSender ? true : APIPlayer.getByPlayer((Player) sender).getRank().getRankType().hasPermission(OnimaPerm.GAME_SHOW_MOD);
+		boolean hasPerm = sender instanceof ConsoleCommandSender ? true : OnimaPerm.GAME_SHOW_MOD.has(sender);
 		
 		sender.sendMessage(ConfigurationService.STAIGHT_LINE);
 		sender.sendMessage("§7Event : §d§o" + type.getName() + ' ' + name + " §7- Créateur : §d§o" + creator + " §7- Monde : §d§o" + (region == null ? "§cAucun" : "§a" + region.getLocation1().getWorld().getName()));
@@ -351,7 +352,7 @@ public class Koth extends Game implements Capable {
 			sender.sendMessage("§7Commencé depuis : §d§o" + LongTime.setHMSFormat(System.currentTimeMillis() - startedTime));
 			
 			if (capper != null)
-				sender.sendMessage("§7Cappeur : §d§o" + (hasPerm ? capper.getName() : "?????"));
+				sender.sendMessage("§7Cappeur : §d§o" + (hasPerm ? capper.getDisplayName(true) : "?????"));
 			sender.sendMessage("§7Temps de cap restant : §d§o" + LongTime.setHMSFormat(capTimeLeft));
 		}
 		sender.sendMessage("§7Récompense : §d§oClé " + type.getName() + " x1");

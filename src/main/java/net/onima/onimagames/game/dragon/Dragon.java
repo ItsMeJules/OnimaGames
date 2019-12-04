@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -31,6 +32,7 @@ import net.onima.onimaapi.utils.CasualFormatDate;
 import net.onima.onimaapi.utils.ConfigurationService;
 import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.time.Time.LongTime;
+import net.onima.onimafaction.faction.PlayerFaction;
 import net.onima.onimagames.event.GameStartEvent;
 import net.onima.onimagames.event.GameStopEvent;
 import net.onima.onimagames.game.Game;
@@ -145,25 +147,29 @@ public class Dragon extends Game { //TODO Event quand qqun passe premier dans le
 		GameStopEvent event = new GameStopEvent(this);		
 		
 		Bukkit.getPluginManager().callEvent(event);
-		if (event.isCancelled()) return;
+		if (event.isCancelled())
+			return;
 		
 		ComponentBuilder playerDealtBuilder = new ComponentBuilder("§eTop 3 joueurs avec le plus de dégâts donné §7§o(passez votre souris dessus)");
 		ComponentBuilder playerDealtHover = new ComponentBuilder("");
 		
-		ComponentBuilder playerTakenBuilder = new ComponentBuilder("&eTop 3 joueurs avec le plus de dégâts subit &7&o(passez votre souris dessus)");
+		ComponentBuilder playerTakenBuilder = new ComponentBuilder("§eTop 3 joueurs avec le plus de dégâts subit §7§o(passez votre souris dessus)");
 		ComponentBuilder playerTakenHover = new ComponentBuilder("");
 
-		ComponentBuilder factionDealtBuilder = new ComponentBuilder("&eTop 3 factions avec le plus de dégâts donné &7&o(passez votre souris dessus)");
+		ComponentBuilder factionDealtBuilder = new ComponentBuilder("§eTop 3 factions avec le plus de dégâts donné §7§o(passez votre souris dessus)");
 		ComponentBuilder factionDealtHover = new ComponentBuilder("");
 		
-		ComponentBuilder factionTakenBuilder = new ComponentBuilder("&eTop 3 factions wavec le plus de dégâts subit &7&o(passez votre souris dessus)");
+		ComponentBuilder factionTakenBuilder = new ComponentBuilder("§eTop 3 factions wavec le plus de dégâts subit §7§o(passez votre souris dessus)");
 		ComponentBuilder factionTakenHover = new ComponentBuilder("");
+		
+		String topFacName = "", topPlayerName = "";
 		
 		int pos = 0;
 		for (Entry<String, Double> top : Methods.getTop(playerDamageDealt, 3).collect(Collectors.toCollection(() -> new ArrayList<>(3)))) {
 			pos++;
 			playerDealtHover.append(pos + ". §e" + top.getKey() + " - §a" + top.getValue());
 			if (pos == 3) pos = 0;
+			else if (pos == 1) topPlayerName = top.getKey();
 		}
 		
 		for (Entry<String, Double> top : Methods.getTop(playerDamageTaken, 3).collect(Collectors.toCollection(() -> new ArrayList<>(3)))) {
@@ -176,6 +182,7 @@ public class Dragon extends Game { //TODO Event quand qqun passe premier dans le
 			pos++;
 			factionDealtHover.append(pos + ". §e" + top.getKey() + " - §a" + top.getValue());
 			if (pos == 3) pos = 0;
+			else if (pos == 1) topFacName = top.getKey();
 		}
 		
 		for (Entry<String, Double> top : Methods.getTop(factionDamageDealt, 3).collect(Collectors.toCollection(() -> new ArrayList<>(3)))) {
@@ -197,6 +204,17 @@ public class Dragon extends Game { //TODO Event quand qqun passe premier dans le
 		Bukkit.broadcastMessage("§eFlèches (§7tirées/§cratées§7/§atouchées§e): §7" + arrowsShot + "/§c" + arrowsMissed + "§7/§a" + (arrowsShot - arrowsMissed));
 		Bukkit.broadcastMessage("§6§m----------------------------------------");
 
+		OfflinePlayer leader = PlayerFaction.getPlayersFaction().get(topFacName).getLeader();
+		APIPlayer apiPlayer = APIPlayer.getPlayer(topPlayerName);
+		
+		if (apiPlayer.isOnline()) { //TODO
+			return;
+		}
+		
+		if (leader.isOnline()) { //TODO dragon crate
+			
+		}
+		
 		playerDamageDealt.clear();
 		playerDamageTaken.clear();
 		factionDamageDealt.clear();
@@ -220,7 +238,7 @@ public class Dragon extends Game { //TODO Event quand qqun passe premier dans le
 	
 	@Override
 	public void sendShow(CommandSender sender) {
-		boolean hasPerm = sender instanceof ConsoleCommandSender ? true : APIPlayer.getByPlayer((Player) sender).getRank().getRankType().hasPermission(OnimaPerm.GAME_SHOW_MOD);
+		boolean hasPerm = sender instanceof ConsoleCommandSender ? true : OnimaPerm.GAME_SHOW_MOD.has(sender);
 		
 		sender.sendMessage(ConfigurationService.STAIGHT_LINE);
 		sender.sendMessage("§7Event : §d§o" + type.getName() + ' ' + super.name + " §7- Créateur : §d§o" + creator + " §7- Monde : §d§o" + (location == null ? "§cAucun" : "§a" + location.getWorld().getName()));

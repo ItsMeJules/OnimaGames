@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityCreatePortalEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -29,7 +30,7 @@ public class DragonListener implements Listener {
 			Entity damager = event.getDamager();
 			
 			if (damaged instanceof Player && damager instanceof EnderDragon) {
-				FPlayer fPlayer = FPlayer.getByUuid(damaged.getUniqueId());
+				FPlayer fPlayer = FPlayer.getPlayer(damaged.getUniqueId());
 				
 				dragon.addDamageTakenToPlayer(fPlayer.getApiPlayer().getName(), event.getDamage());
 				if (fPlayer.hasFaction())
@@ -39,7 +40,7 @@ public class DragonListener implements Listener {
 				Player finalAttacker = Methods.getLastAttacker(event);
 				
 				if (finalAttacker != null) {
-					FPlayer fPlayer = FPlayer.getByUuid(finalAttacker.getUniqueId());
+					FPlayer fPlayer = FPlayer.getPlayer(finalAttacker.getUniqueId());
 						
 					dragon.addDamageDealtToPlayer(fPlayer.getApiPlayer().getName(), event.getDamage());
 					if (fPlayer.hasFaction())
@@ -85,6 +86,12 @@ public class DragonListener implements Listener {
 			}
 		}
 		
+	}
+	
+	@EventHandler
+	public void onDragonPortal(EntityCreatePortalEvent event) {
+		if (event.getEntity() instanceof EnderDragon)
+			event.setCancelled(true);
 	}
 
 }

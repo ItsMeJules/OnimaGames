@@ -71,7 +71,7 @@ public class Citadel extends Koth {
             Location loc = cuboid.getWorld().getHighestBlockAt(cuboid.getMinimumLocation().add(-0.5, 0, -0.5)).getLocation();
             
             for (Player player : cuboid.getPlayers()) {
-            	if (APIPlayer.getByPlayer(player).getTimeLeft(PvPTimerCooldown.class) > 0L)
+            	if (APIPlayer.getPlayer(player).getTimeLeft(PvPTimerCooldown.class) > 0L)
             		player.teleport(loc);
             }
             
@@ -197,7 +197,7 @@ public class Citadel extends Koth {
 		
 		capper.sendMessage("§eVous §7n'êtes plus entrain de capturer la Citadel !");
 		if ((capTime - capTimeLeft) > ConfigurationService.KOTH_KNOCK_ANNOUNCE_DELAY)
-			Bukkit.broadcastMessage("§e" + capper.getName() + " §7a été knock de la Citadel (" + LongTime.setHMSFormatOnlySeconds(capTimeLeft) + ") !");
+			Bukkit.broadcastMessage("§e" + capper.getDisplayName() + " §7a été knock de la Citadel (" + LongTime.setHMSFormatOnlySeconds(capTimeLeft) + ") !");
 
 		capper.setCapping(null);
 		
