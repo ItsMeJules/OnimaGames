@@ -2,20 +2,25 @@ package net.onima.onimagames.game;
 
 public enum GameType {
 	
-	KOTH("KoTH"),
-	CONQUEST("Conquest"),
-	DTC("DTC"),
-	CITADEL("Citadel"),
-	DRAGON_EVENT("Dragon");
+	KOTH("KoTH", "§9"),
+	CONQUEST("Conquest", "§e"),
+	DTC("DTC", "§a"),
+	CITADEL("Citadel", "§5"),
+	DRAGON_EVENT("Dragon", "§1");
 	
-	private String name;
+	private String name, eventColor;
 	
-	private GameType(String name) {
+	private GameType(String name, String eventColor) {
 		this.name = name;
+		this.eventColor = eventColor;
 	}
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getColor() {
+		return eventColor;
 	}
 	
 	public static GameType getType(String type) {

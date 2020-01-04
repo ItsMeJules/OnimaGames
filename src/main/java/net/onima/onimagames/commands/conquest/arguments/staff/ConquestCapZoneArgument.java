@@ -15,10 +15,8 @@ import net.onima.onimaapi.items.Wand;
 import net.onima.onimaapi.players.APIPlayer;
 import net.onima.onimaapi.rank.OnimaPerm;
 import net.onima.onimaapi.utils.JSONMessage;
-import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.commands.BasicCommandArgument;
 import net.onima.onimaapi.zone.Cuboid;
-import net.onima.onimaapi.zone.type.Region;
 import net.onima.onimagames.game.Game;
 import net.onima.onimagames.game.GameType;
 import net.onima.onimagames.game.conquest.Conquest;
@@ -79,15 +77,10 @@ public class ConquestCapZoneArgument extends BasicCommandArgument {
 
 			if (!Wand.validWorlds((Player) sender, loc1, loc2)) return false;
 			
-			Region region = new Region(game.getName() + '_' + type.name() + "_color", "§7CapZone " + type.getName(), Methods.getRealName(sender), loc1, loc2);
-			Cuboid cuboid = region.toCuboid();
-			
-			region.setPriority(conquest.getRegion().getPriority() + 1);
-			cuboid.expandVertical();
-			
+			Cuboid cuboid = new Cuboid(loc1, loc2, true);
 			ConquestZone zone = new ConquestZone(conquest, type, label);
 			
-			zone.setCapZone(region);
+			zone.setCapZone(cuboid);
 			conquest.addConquestZone(type, new ConquestZone(conquest, type, label));
 			sender.sendMessage("§d§oVous §7avez défini la zone de cap " + type.getName() + " §7du §d§o" + GameType.CONQUEST.getName() + ' ' + game.getName() + "§7.");
 			return true;
@@ -97,7 +90,6 @@ public class ConquestCapZoneArgument extends BasicCommandArgument {
 				return false;
 			}
 			
-			conquest.getZone(type).getCapZone().remove();
 			conquest.removeZone(type);
 			sender.sendMessage("§d§oVous §7avez §d§osupprimé §7la zone de cap " + type.getName() + " §7du §d§o" + GameType.CONQUEST.getName() + ' ' + game.getName() + "§7.");
 			return true;

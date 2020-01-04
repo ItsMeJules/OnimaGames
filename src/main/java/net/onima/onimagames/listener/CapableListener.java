@@ -1,13 +1,14 @@
 package net.onima.onimagames.listener;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 
-import net.onima.onimaapi.event.region.PlayerRegionChangeEvent;
 import net.onima.onimaapi.players.APIPlayer;
 import net.onima.onimaapi.utils.ConfigurationService;
 import net.onima.onimaapi.utils.Methods;
@@ -25,7 +26,12 @@ import net.onima.onimagames.game.dtc.DTC;
 public class CapableListener implements Listener { //TODO A améliorer
 	
 	@EventHandler
-	public void onAreaEnter(PlayerRegionChangeEvent event) {
+	public void onMove(PlayerMoveEvent event) {
+		Location to = event.getTo(), from = event.getFrom();
+		
+		if (to.getBlockX() == from.getBlockX() && to.getBlockZ() == from.getBlockZ() && to.getBlockY() == from.getBlockY())
+			return;
+		
 		Game game = Game.getStartedGame();
 		
 		if (game != null && !(game instanceof DTC) && !(game instanceof Dragon)) {
@@ -43,11 +49,11 @@ public class CapableListener implements Listener { //TODO A améliorer
 				capableGames[0] = (Capable) game;
 			}
 			
-			APIPlayer apiPlayer = event.getAPIPlayer();
+			APIPlayer apiPlayer = APIPlayer.getPlayer(event.getPlayer());
 			
 			for (Capable capable : capableGames) {
-				Cuboid cuboid = capable.getCapZone().toCuboid();
-				boolean isInside = cuboid.contains(event.getToLocation());
+				Cuboid cuboid = capable.getCapZone();
+				boolean isInside = cuboid.contains(to);
 				
 				if (isInside && !capable.tryCapping(apiPlayer)) continue;
 				

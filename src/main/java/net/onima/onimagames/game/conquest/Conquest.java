@@ -24,7 +24,6 @@ import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.time.Time.LongTime;
 import net.onima.onimaapi.zone.Cuboid;
 import net.onima.onimaapi.zone.struct.Flag;
-import net.onima.onimaapi.zone.type.Region;
 import net.onima.onimafaction.OnimaFaction;
 import net.onima.onimafaction.cooldowns.PvPTimerCooldown;
 import net.onima.onimafaction.faction.PlayerFaction;
@@ -67,7 +66,7 @@ public class Conquest extends Game {
 		this.pointsToWin = pointsToWin;
 	}
 	
-	public Region getRegion(ConquestType type) {
+	public Cuboid getCapZone(ConquestType type) {
 		switch(type) {
 		case BLUE:
 			return zones[0].getCapZone();
@@ -88,7 +87,7 @@ public class Conquest extends Game {
 		return zones;
 	}
 	
-	public void addZone(ConquestType type, ConquestZone zone, Region capZone) {
+	public void addZone(ConquestType type, ConquestZone zone, Cuboid capZone) {
 		zone.setCapZone(capZone);
 		switch(type) {
 		case BLUE:
@@ -198,14 +197,21 @@ public class Conquest extends Game {
 		
 		super.serialize();
 		
-		config.set(path+"points-to-win", pointsToWin);
+		config.set(path + "points-to-win", pointsToWin);
 		
 		for (ConquestZone zone : zones) {
-			String path2 = path+"zones."+zone.getType().getName()+".";
+			String path2 = path + "zones." + zone.getType().getName() + ".";
 			
-			config.set(path2+"name", zone.getName());
-			config.set(path2+"points-per-cap", zone.getPointsPerCap());
-			config.set(path2+"cap-time", zone.getCapTime());
+			config.set(path2 + "name", zone.getName());
+			config.set(path2 + "points-per-cap", zone.getPointsPerCap());
+			config.set(path2 + "cap-time", zone.getCapTime());
+			
+			if (zone.getCapZone() != null) {
+				Cuboid capZone = zone.getCapZone();
+				
+				config.set(path2 + "cap-zone-loc1", Methods.serializeLocation(capZone.getMinimumLocation(), false));
+				config.set(path2 + "cap-zone-loc2", Methods.serializeLocation(capZone.getMaximumLocation(), false));
+			}
 		}
 	}
 
@@ -231,11 +237,11 @@ public class Conquest extends Game {
 			Bukkit.getPluginManager().callEvent(event);
 			if (event.isCancelled()) return;
 			
-			Location blue = getRegion(ConquestType.BLUE).toCuboid().getCenterLocation();
-			Location green = getRegion(ConquestType.GREEN).toCuboid().getCenterLocation();
-			Location red = getRegion(ConquestType.RED).toCuboid().getCenterLocation();
-			Location yellow = getRegion(ConquestType.YELLOW).toCuboid().getCenterLocation();
-			Location main = getRegion(ConquestType.MAIN).toCuboid().getCenterLocation();
+			Location blue = getCapZone(ConquestType.BLUE).getCenterLocation();
+			Location green = getCapZone(ConquestType.GREEN).getCenterLocation();
+			Location red = getCapZone(ConquestType.RED).getCenterLocation();
+			Location yellow = getCapZone(ConquestType.YELLOW).getCenterLocation();
+			Location main = getCapZone(ConquestType.MAIN).getCenterLocation();
 			
 			Bukkit.broadcastMessage("§8" + ConfigurationService.STAIGHT_LINE);
             Bukkit.broadcastMessage("§7La conquest §9" + name + " §7a commencé aux locations suivantes :");
@@ -257,12 +263,8 @@ public class Conquest extends Game {
             		player.teleport(loc);
             }
             
-            for (ConquestZone zone : zones) {
+            for (ConquestZone zone : zones)
             	zone.setCapTimeLeft(zone.getCapTime());
-            	zone.getCapZone().setDeathban(false);
-            	zone.getCapZone().addFlag(Flag.DENY_ENDERPEARL);
-            	zone.getCapZone().addFlag(Flag.PVP_TIMER_DENY_ENTRY);
-            }
             
 			startedGame = this;
 			startedTime = System.currentTimeMillis();
@@ -306,9 +308,6 @@ public class Conquest extends Game {
 					zone.setCapper(null);
 				}
 				
-				zone.getCapZone().setDeathban(false);
-            	zone.getCapZone().removeFlag(Flag.DENY_ENDERPEARL);
-            	zone.getCapZone().removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
 				zone.setTimeAtCap(-1L);
 				zone.setCapTimeLeft(-1L);
 			}
@@ -386,9 +385,6 @@ public class Conquest extends Game {
 				zone.setCapper(null);
 			}
 			
-			zone.getCapZone().setDeathban(false);
-        	zone.getCapZone().removeFlag(Flag.DENY_ENDERPEARL);
-        	zone.getCapZone().removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
 			zone.setTimeAtCap(-1L);
 			zone.setCapTimeLeft(-1L);
 		}
@@ -409,7 +405,7 @@ public class Conquest extends Game {
 	public void update() {
 		if (isStarted()) {
 			for (ConquestZone zone : zones) {
-				Player capper = Iterables.getFirst(zone.getCapZone().toCuboid().getPlayers(), null);
+				Player capper = Iterables.getFirst(zone.getCapZone().getPlayers(), null);
 				
 				if (capper != null)
 					zone.onCap(APIPlayer.getPlayer(capper));
@@ -505,14 +501,6 @@ public class Conquest extends Game {
 		synchronized (cappingFactions) {
 			return cappingFactions.containsKey(factionName) ? cappingFactions.get(factionName) : 0;
 		}
-	}
-	
-	@Override
-	public void remove() {
-		super.remove();
-		
-		for (ConquestZone zone : zones)
-			zone.getCapZone().remove();
 	}
 	
 }

@@ -75,10 +75,6 @@ public class Citadel extends Koth {
             		player.teleport(loc);
             }
             
-            capZone.setDeathban(false);
-            capZone.addFlag(Flag.DENY_ENDERPEARL);
-            capZone.addFlag(Flag.PVP_TIMER_DENY_ENTRY);
-            
 			startedGame = this;	
 			capTimeLeft = capTime;
 			startedTime = System.currentTimeMillis();
@@ -101,12 +97,9 @@ public class Citadel extends Koth {
             region.removeFlag(Flag.DENY_ENDERPEARL);
             region.removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
             
-            capZone.setDeathban(true);
-            capZone.removeFlag(Flag.DENY_ENDERPEARL);
-            capZone.removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
-            
             if (capper != null)
             	capper.setCapping(null);
+            
 			capper = null;
 			timeAtCap = -1L;
 			capTimeLeft = -1L;
@@ -133,10 +126,6 @@ public class Citadel extends Koth {
         region.setDeathban(true);
         region.removeFlag(Flag.DENY_ENDERPEARL);
         region.removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
-        
-        capZone.setDeathban(true);
-        capZone.removeFlag(Flag.DENY_ENDERPEARL);
-        capZone.removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
         
         capper.setCapping(null);
 		capper = null;
@@ -211,9 +200,12 @@ public class Citadel extends Koth {
 		if (!refreshed)
 			refreshFile();
 		
-		config.set(path+"cap-time", capTime);
-		config.set(path+"creator", creator);
-		config.set(path+"created", created);
+		config.set(path + "cap-time", capTime);
+		
+		if (capZone != null) {
+			config.set(path + "cap-zone-loc1", Methods.serializeLocation(capZone.getMinimumLocation(), false));
+			config.set(path + "cap-zone-loc2", Methods.serializeLocation(capZone.getMaximumLocation(), false));
+		}
 		
 		super.serialize();
 	}

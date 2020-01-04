@@ -3,7 +3,7 @@ package net.onima.onimagames.game.conquest;
 import org.bukkit.Bukkit;
 
 import net.onima.onimaapi.players.APIPlayer;
-import net.onima.onimaapi.zone.type.Region;
+import net.onima.onimaapi.zone.Cuboid;
 import net.onima.onimaapi.zone.type.utils.Capable;
 import net.onima.onimafaction.players.FPlayer;
 import net.onima.onimagames.event.capable.CapableCapEvent;
@@ -17,7 +17,7 @@ public class ConquestZone implements Capable {
 	private APIPlayer capper;
 	private String name;
 	private ConquestType type;
-	private Region capZone;
+	private Cuboid capZone;
 	
 	public ConquestZone(Conquest conquest, ConquestType type, int pointsPerCap, long capTime, APIPlayer capper, String name) {
 		this.pointsPerCap = pointsPerCap;
@@ -47,12 +47,12 @@ public class ConquestZone implements Capable {
 	}
 	
 	@Override
-	public Region getCapZone() {
+	public Cuboid getCapZone() {
 		return capZone;
 	}
 	
 	@Override
-	public void setCapZone(Region capZone) {
+	public void setCapZone(Cuboid capZone) {
 		this.capZone = capZone;
 	}
 

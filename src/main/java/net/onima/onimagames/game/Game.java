@@ -30,6 +30,7 @@ import net.onima.onimaapi.utils.Config;
 import net.onima.onimaapi.utils.ConfigurationService;
 import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.Scheduler;
+import net.onima.onimaapi.zone.Cuboid;
 import net.onima.onimaapi.zone.type.Region;
 import net.onima.onimagames.game.citadel.Citadel;
 import net.onima.onimagames.game.conquest.Conquest;
@@ -276,10 +277,10 @@ public abstract class Game implements FileSaver, Scheduler {
 				
 				koth.setCapTime(config.getLong(path+"cap-time"));
 				
-				for (Region region : Region.getRegions()) {
-					if (region.getName().equalsIgnoreCase(name + "_capzone"))
-						koth.setCapZone(region);
-				}
+				String loc1 = config.getString(path + "cap-zone-loc1");
+				
+				if (loc1 != null && !loc1.isEmpty())
+					koth.setCapZone(new Cuboid(Methods.deserializeLocation(loc1, false), Methods.deserializeLocation(config.getString(path + "cap-zone-loc2"), false), true));
 				
 				koths++;
 				games++;
@@ -311,17 +312,19 @@ public abstract class Game implements FileSaver, Scheduler {
 				initGamesStuff(conquest, path, 9);
 				
 				conquest.setPointsToWin(config.getInt(path+"points-to-win"));
-				if(sectionZone != null) {
+				if (sectionZone != null) {
 					for (String color : sectionZone.getKeys(false)) {
 						String path2 = path+"zones."+color+".", zoneName = config.getString(path2+"name");
 						ConquestType type = ConquestType.fromString(color.toUpperCase());
+					
 						conquest.addConquestZone(type, new ConquestZone(conquest, type, config.getInt(path2+"points-per-cap"), config.getLong(path2+"cap-time"), null, zoneName));
+					
+						String loc1 = config.getString(path2 + "cap-zone-loc1");
+						
+						if (loc1 != null && !loc1.isEmpty())
+							conquest.getZone(type).setCapZone(new Cuboid(Methods.deserializeLocation(loc1, false), Methods.deserializeLocation(config.getString(path + "cap-zone-loc2"), false), true));
 					}
 					
-					for (Region region : Region.getRegions()) {
-						if (region.getName().startsWith(name + '_') && region.getName().endsWith("_color"))
-							conquest.getZone(ConquestType.fromString(region.getName().split("_")[1])).setCapZone(region);
-					}
 				}
 				conquests++;
 				games++;
@@ -353,10 +356,11 @@ public abstract class Game implements FileSaver, Scheduler {
 				
 				citadel.setCapTime(config.getLong(path+"cap-time"));
 				
-				for (Region region : Region.getRegions()) {
-					if (region.getName().equalsIgnoreCase(name + "_capzone"))
-						citadel.setCapZone(region);
-				}
+				String loc1 = config.getString(path + "cap-zone-loc1");
+				
+				if (loc1 != null && !loc1.isEmpty())
+					citadel.setCapZone(new Cuboid(Methods.deserializeLocation(loc1, false), Methods.deserializeLocation(config.getString(path + "cap-zone-loc2"), false), true));
+	
 				
 				citadels++;
 				games++;
@@ -391,16 +395,12 @@ public abstract class Game implements FileSaver, Scheduler {
 			if (game instanceof DTC) {
 				if (Methods.locationEquals(location, ((DTC) game).getBlock().getLocation()))
 					return game;
-			} else if (game instanceof Koth) {
-				if (((Koth) game).getRegion().toCuboid().contains(location))
-					return game;
-			} else if (game instanceof Conquest) {
-				for (ConquestZone zone : ((Conquest) game).getZones()) {
-					if (zone.getCapZone().toCuboid().contains(location))
-						return game;
-				}
-			}
+			} 
+			
+			if (game.getRegion().toCuboid().contains(location))
+				return game;
 		}
+		
 		return null;
 	}
 	

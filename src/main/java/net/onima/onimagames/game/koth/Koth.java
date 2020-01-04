@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -22,7 +23,6 @@ import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.time.Time.LongTime;
 import net.onima.onimaapi.zone.Cuboid;
 import net.onima.onimaapi.zone.struct.Flag;
-import net.onima.onimaapi.zone.type.Region;
 import net.onima.onimaapi.zone.type.utils.Capable;
 import net.onima.onimafaction.cooldowns.PvPTimerCooldown;
 import net.onima.onimagames.OnimaGames;
@@ -41,7 +41,7 @@ public class Koth extends Game implements Capable {
 	
 	protected APIPlayer capper;
 	protected long capTime, capTimeLeft, timeAtCap = -1L;
-	protected Region capZone;
+	protected Cuboid capZone;
 	
 	public Koth(String name, long capTime, APIPlayer capper, String creator, GameType gameType) {
 		super(gameType, name, creator);
@@ -67,12 +67,12 @@ public class Koth extends Game implements Capable {
 	}
 	
 	@Override
-	public Region getCapZone() {
+	public Cuboid getCapZone() {
 		return capZone;
 	}
 
 	@Override
-	public void setCapZone(Region capZone) {
+	public void setCapZone(Cuboid capZone) {
 		this.capZone = capZone;
 	}
 
@@ -158,10 +158,6 @@ public class Koth extends Game implements Capable {
             		player.teleport(loc);
             }
             
-            capZone.setDeathban(false);
-            capZone.addFlag(Flag.DENY_ENDERPEARL);
-            capZone.addFlag(Flag.PVP_TIMER_DENY_ENTRY);
-            
 			startedGame = this;	
 			capTimeLeft = capTime;
 			startedTime = System.currentTimeMillis();
@@ -189,12 +185,9 @@ public class Koth extends Game implements Capable {
             region.removeFlag(Flag.DENY_ENDERPEARL);
             region.removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
             
-            capZone.setDeathban(true);
-            capZone.removeFlag(Flag.DENY_ENDERPEARL);
-            capZone.removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
-            
             if (capper != null)
             	capper.setCapping(null);
+            
 			capper = null;
 			timeAtCap = -1L;
 			capTimeLeft = -1L;
@@ -221,10 +214,6 @@ public class Koth extends Game implements Capable {
         region.setDeathban(true);
         region.removeFlag(Flag.DENY_ENDERPEARL);
         region.removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
-        
-        capZone.setDeathban(true);
-        capZone.removeFlag(Flag.DENY_ENDERPEARL);
-        capZone.removeFlag(Flag.PVP_TIMER_DENY_ENTRY);
         
         capper.setCapping(null);
 		capper = null;
@@ -302,7 +291,7 @@ public class Koth extends Game implements Capable {
 	@Override
 	public void update() {
 		if (isStarted()) {
-			Player capper = Iterables.getFirst(capZone.toCuboid().getPlayers(), null);
+			Player capper = Iterables.getFirst(capZone.getPlayers(), null);
 			
 			if (capper != null)
 				onCap(APIPlayer.getPlayer(capper));
@@ -337,8 +326,8 @@ public class Koth extends Game implements Capable {
 			
 			sender.sendMessage("§7Zone de cap : " + (capZone != null ? "§acréée" : "§cnon-créée") + "§7.");
 			if (capZone != null) {
-				Location loc1 = capZone.getLocation1();
-				Location loc2 = capZone.getLocation2();
+				Vector loc1 = capZone.getMinimum();
+				Vector loc2 = capZone.getMaximum();
 				sender.sendMessage(" §7- Location n°1 : §d§o" + loc1.getBlockX() + ' ' + loc1.getBlockY() + ' ' + loc1.getBlockZ());
 				sender.sendMessage(" §7- Location n°2 : §d§o" + loc2.getBlockX() + ' ' + loc2.getBlockY() + ' ' + loc2.getBlockZ());
 			}
@@ -360,19 +349,16 @@ public class Koth extends Game implements Capable {
 	}
 	
 	@Override
-	public void remove() {
-		super.remove();
-		capZone.remove();
-	}
-	
-	@Override
 	public void serialize() {
 		if (!refreshed)
 			refreshFile();
 		
-		config.set(path+"cap-time", capTime);
-		config.set(path+"creator", creator);
-		config.set(path+"created", created);
+		config.set(path + "cap-time", capTime);
+		
+		if (capZone != null) {
+			config.set(path + "cap-zone-loc1", Methods.serializeLocation(capZone.getMinimumLocation(), false));
+			config.set(path + "cap-zone-loc2", Methods.serializeLocation(capZone.getMaximumLocation(), false));
+		}
 		
 		super.serialize();
 	}

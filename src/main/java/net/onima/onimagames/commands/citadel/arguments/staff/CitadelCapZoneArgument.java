@@ -14,10 +14,8 @@ import net.onima.onimaapi.items.Wand;
 import net.onima.onimaapi.players.APIPlayer;
 import net.onima.onimaapi.rank.OnimaPerm;
 import net.onima.onimaapi.utils.JSONMessage;
-import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.commands.BasicCommandArgument;
 import net.onima.onimaapi.zone.Cuboid;
-import net.onima.onimaapi.zone.type.Region;
 import net.onima.onimagames.game.Game;
 import net.onima.onimagames.game.GameType;
 import net.onima.onimagames.game.citadel.Citadel;
@@ -70,14 +68,10 @@ public class CitadelCapZoneArgument extends BasicCommandArgument {
 
 			if (!Wand.validWorlds((Player) sender, loc1, loc2)) return false;
 			
-			Region region = new Region(game.getName() + "_capzone", game.getName() + " CapZone", Methods.getRealName(sender), loc1, loc2);
-			Cuboid cuboid = region.toCuboid();
-			
-			region.setPriority(citadel.getRegion().getPriority() + 1);
-			cuboid.expandVertical();
+			Cuboid cuboid = new Cuboid(loc1, loc2, true);
 			
 			sender.sendMessage("§d§oVous §7avez §d§odéfini §7la zone de cap pour la §d§o" + GameType.CITADEL.getName() + ' ' + game.getName() + "§7.");
-			citadel.setCapZone(region);
+			citadel.setCapZone(cuboid);
 			citadel.setLocation(cuboid.getCenterLocation());
 			return true;
 		} else if (args[2].equalsIgnoreCase("remove")) {
@@ -87,7 +81,6 @@ public class CitadelCapZoneArgument extends BasicCommandArgument {
 			}
 			
 			sender.sendMessage("§d§oVous §7avez §d§osupprimé §7la zone pour la §d§o" + GameType.CITADEL.getName() + ' ' + game.getName() + "§7.");
-			citadel.getCapZone().remove();
 			citadel.setCapZone(null);
 			citadel.setLocation(null);
 			return true;
