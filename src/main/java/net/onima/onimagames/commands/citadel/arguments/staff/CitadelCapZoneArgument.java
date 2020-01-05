@@ -24,7 +24,7 @@ public class CitadelCapZoneArgument extends BasicCommandArgument {
 
 	public CitadelCapZoneArgument() {
 		super("capzone", OnimaPerm.CITADEL_CAPZONE_ARGUMENT);
-		usage = new JSONMessage("§7/conquest " + name + " <name> <set | remove>", "§d§oDéfini la zone de cap de la " + GameType.CITADEL.getName() + '.');
+		usage = new JSONMessage("§7/citadel " + name + " <name> <set | remove>", "§d§oDéfini la zone de cap de la " + GameType.CITADEL.getName() + '.');
 		playerOnly = true;
 	}
 

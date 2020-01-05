@@ -42,10 +42,10 @@ public class ConquestSetPointsToWinArgument extends BasicCommandArgument {
 			return false;
 		}
 		
-		Integer points = Methods.toInteger(args[3]);
+		Integer points = Methods.toInteger(args[2]);
 		
 		if (points == null) {
-			sender.sendMessage("§cLa valeur " + args[3] + " n'est pas un nombre.");
+			sender.sendMessage("§cLa valeur " + args[2] + " n'est pas un nombre.");
 			return false;
 		}
 		

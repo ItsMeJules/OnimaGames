@@ -322,7 +322,8 @@ public abstract class Game implements FileSaver, Scheduler {
 						String loc1 = config.getString(path2 + "cap-zone-loc1");
 						
 						if (loc1 != null && !loc1.isEmpty())
-							conquest.getZone(type).setCapZone(new Cuboid(Methods.deserializeLocation(loc1, false), Methods.deserializeLocation(config.getString(path + "cap-zone-loc2"), false), true));
+							conquest.getZone(type).setCapZone(new Cuboid(Methods.deserializeLocation(loc1, false), Methods.deserializeLocation(config.getString(path2 + "cap-zone-loc2"), false), true));
+					
 					}
 					
 				}

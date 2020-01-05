@@ -77,11 +77,7 @@ public class ConquestCapZoneArgument extends BasicCommandArgument {
 
 			if (!Wand.validWorlds((Player) sender, loc1, loc2)) return false;
 			
-			Cuboid cuboid = new Cuboid(loc1, loc2, true);
-			ConquestZone zone = new ConquestZone(conquest, type, label);
-			
-			zone.setCapZone(cuboid);
-			conquest.addConquestZone(type, new ConquestZone(conquest, type, label));
+			conquest.addZone(type, new ConquestZone(conquest, type, label), new Cuboid(loc1, loc2, true));
 			sender.sendMessage("§d§oVous §7avez défini la zone de cap " + type.getName() + " §7du §d§o" + GameType.CONQUEST.getName() + ' ' + game.getName() + "§7.");
 			return true;
 		} else if (args[3].equalsIgnoreCase("remove")) {

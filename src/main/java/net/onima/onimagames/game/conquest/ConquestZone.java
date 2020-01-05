@@ -108,9 +108,9 @@ public class ConquestZone implements Capable {
 	public boolean tryCapping(APIPlayer capper) {
 		if (!FPlayer.getPlayer(capper.getUUID()).hasFaction()) {
 			capper.sendMessage("§cVous avez besoin d'une faction pour capturer une zone de conquest !");
-			return true;
-		} else 
 			return false;
+		} else 
+			return true;
 	}
 	
 	@Override

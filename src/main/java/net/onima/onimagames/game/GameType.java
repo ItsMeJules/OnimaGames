@@ -3,9 +3,9 @@ package net.onima.onimagames.game;
 public enum GameType {
 	
 	KOTH("KoTH", "§9"),
-	CONQUEST("Conquest", "§e"),
-	DTC("DTC", "§a"),
-	CITADEL("Citadel", "§5"),
+	CONQUEST("Conquest", "§3"),
+	DTC("DTC", "§e"),
+	CITADEL("Citadel", "§5§l"),
 	DRAGON_EVENT("Dragon", "§1");
 	
 	private String name, eventColor;

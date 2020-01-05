@@ -115,20 +115,25 @@ public class Conquest extends Game {
 	}
 	
 	public void addConquestZone(ConquestType type, ConquestZone zone) {
-		switch(type) {
+		switch (type) {
 		case BLUE:
+			types[0] = type;
 			zones[0] = zone;
 			break;
 		case GREEN:
+			types[1] = type;
 			zones[1] = zone;
 			break;
 		case RED:
+			types[2] = type;
 			zones[2] = zone;
 			break;
 		case YELLOW:
+			types[3] = type;
 			zones[3] = zone;
 			break;
 		case MAIN:
+			types[4] = type;
 			zones[4] = zone;
 		default:
 			break;
@@ -200,7 +205,7 @@ public class Conquest extends Game {
 		config.set(path + "points-to-win", pointsToWin);
 		
 		for (ConquestZone zone : zones) {
-			String path2 = path + "zones." + zone.getType().getName() + ".";
+			String path2 = path + "zones." + zone.getType().name() + ".";
 			
 			config.set(path2 + "name", zone.getName());
 			config.set(path2 + "points-per-cap", zone.getPointsPerCap());
@@ -243,6 +248,7 @@ public class Conquest extends Game {
 			Location yellow = getCapZone(ConquestType.YELLOW).getCenterLocation();
 			Location main = getCapZone(ConquestType.MAIN).getCenterLocation();
 			
+			Bukkit.broadcastMessage("");
 			Bukkit.broadcastMessage("§8" + ConfigurationService.STAIGHT_LINE);
             Bukkit.broadcastMessage("§7La conquest §9" + name + " §7a commencé aux locations suivantes :");
             Bukkit.broadcastMessage("  §7- §bBleu : §7" + blue.getBlockX() + ", " + blue.getBlockY() + ", " + blue.getBlockZ());
@@ -281,8 +287,10 @@ public class Conquest extends Game {
 			for (ConquestType type : ConquestType.values()) {
 				ConquestZone zone = getZone(type);
 				
-				if (zone.getPointsPerCap() == 0 || zone.getCapTime() == 0) return ready;
+				if (zone.getPointsPerCap() == 0 || zone.getCapTime() == 0)
+					return ready;
 			}
+			
 			ready = true;
 		}
 		return ready;
@@ -340,7 +348,7 @@ public class Conquest extends Game {
 				
 					if (factionPoints % 10 == 0) {
 						for (Player online : Bukkit.getOnlinePlayers()) 
-							online.sendMessage("§7La faction §e" + faction.getRelation(online)+faction.getName() + " §7a §e" + factionPoints + " §7points !");
+							online.sendMessage("§7La faction §e" + faction.getRelation(online).getColor() + faction.getName() + " §7a §e" + factionPoints + " §7points !");
 					}
 				} else {
 					CapableWinEvent event = new CapableWinEvent(zone, apiPlayer);
@@ -351,8 +359,7 @@ public class Conquest extends Game {
 					win(apiPlayer);
 					break;
 				}
-			} else if ((zone.getCapTimeLeft() / 1000) % 5 == 0)
-				Bukkit.broadcastMessage("§eQuelqu'un §7est entrain de contrôler la zone " + zone.getType().getName() + ". §c(" + LongTime.setHMSFormat(zone.getCapTimeLeft()) + ')');
+			}
 		}
 	}
 	
@@ -433,6 +440,9 @@ public class Conquest extends Game {
 			
 			sender.sendMessage("§7Zones de cap (§d§o" + zones.length + "/5§7) :");
 			for (ConquestZone zone : zones) {
+				if (zone == null)
+					continue;
+				
 				ConquestType type = zone.getType();
 				
 				Methods.sendJSON(sender, new ComponentBuilder("§7Zone " + type.getName().toLowerCase())
