@@ -73,7 +73,7 @@ public class ConquestZone implements Capable {
 	}
 	
 	public void decreaseTime() {
-		capTimeLeft = timeAtCap+capTime-System.currentTimeMillis();
+		capTimeLeft = timeAtCap + capTime - System.currentTimeMillis();
 	}
 	
 	public APIPlayer getCapper() {

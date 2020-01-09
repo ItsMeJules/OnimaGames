@@ -177,6 +177,18 @@ public abstract class Game implements FileSaver, Scheduler {
 	
 	@Override
 	public void setSchedulerEnabled(boolean schedulerEnabled) {
+		if (schedulerEnabled) {
+			long nextStart = getWhenItStarts();
+			
+			while (nextStart <= System.currentTimeMillis())
+				nextStart += timeRestart;
+			
+			temporal = ZonedDateTime.ofInstant(Instant.ofEpochMilli(nextStart), OnimaAPI.TIME_ZONE);
+			
+			OnimaAPI.getScheduled().add(this);
+		} else
+			OnimaAPI.getScheduled().remove(this);
+		
 		this.schedulerEnabled = schedulerEnabled;
 	}
 	
@@ -217,7 +229,6 @@ public abstract class Game implements FileSaver, Scheduler {
 	@Override
 	public void save() {
 		games.add(this);
-		OnimaAPI.getScheduled().add(this);
 		OnimaAPI.getShutdownSavers().add(this);
 	}
 	

@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import net.onima.onimaapi.players.APIPlayer;
+import net.onima.onimaapi.players.utils.PlayerOption;
 import net.onima.onimaapi.utils.ConfigurationService;
 import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.time.Time.LongTime;
@@ -168,7 +169,11 @@ public class Citadel extends Koth {
 		if (event.isCancelled())
 			return;
 		
-		Bukkit.broadcastMessage("§7La Citadel §e" + name + " §7est entrain d'être capturé !");
+		for (APIPlayer apiPlayer : APIPlayer.getOnlineAPIPlayers()) {
+			if (apiPlayer.getOptions().getBoolean(PlayerOption.GlobalOptions.CAPZONE_MESSAGES))
+				apiPlayer.sendMessage("§7La Citadel §e" + name + " §7est entrain d'être capturé !");
+		}
+		
 		capper.sendMessage("§eVous §7êtes entrain de capturer la Citadel !");
 		capper.setCapping(this);
 		
@@ -185,9 +190,14 @@ public class Citadel extends Koth {
 			return;
 		
 		capper.sendMessage("§eVous §7n'êtes plus entrain de capturer la Citadel !");
-		if ((capTime - capTimeLeft) > ConfigurationService.KOTH_KNOCK_ANNOUNCE_DELAY)
-			Bukkit.broadcastMessage("§e" + capper.getDisplayName() + " §7a été knock de la Citadel (" + LongTime.setHMSFormatOnlySeconds(capTimeLeft) + ") !");
-
+		
+		if ((capTime - capTimeLeft) > ConfigurationService.KOTH_KNOCK_ANNOUNCE_DELAY) {
+			for (APIPlayer apiPlayer : APIPlayer.getOnlineAPIPlayers()) {
+				if (apiPlayer.getOptions().getBoolean(PlayerOption.GlobalOptions.CAPZONE_MESSAGES))
+					apiPlayer.sendMessage("§e" + capper.getDisplayName() + " §7a été knock de la Citadel (" + LongTime.setHMSFormatOnlySeconds(capTimeLeft) + ") !");
+			}
+		}
+		
 		capper.setCapping(null);
 		
 		timeAtCap = -1L;

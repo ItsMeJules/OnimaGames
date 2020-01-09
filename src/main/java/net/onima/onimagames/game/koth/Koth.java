@@ -16,6 +16,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.minecraft.util.com.google.common.collect.Iterables;
 import net.onima.onimaapi.players.APIPlayer;
+import net.onima.onimaapi.players.utils.PlayerOption;
 import net.onima.onimaapi.rank.OnimaPerm;
 import net.onima.onimaapi.utils.CasualFormatDate;
 import net.onima.onimaapi.utils.ConfigurationService;
@@ -256,7 +257,11 @@ public class Koth extends Game implements Capable {
 		if (event.isCancelled())
 			return;
 		
-		Bukkit.broadcastMessage("§7Le KoTH §e" + name + " §7est entrain d'être capturé !");
+		for (APIPlayer apiPlayer : APIPlayer.getOnlineAPIPlayers()) {
+			if (apiPlayer.getOptions().getBoolean(PlayerOption.GlobalOptions.CAPZONE_MESSAGES))
+				apiPlayer.sendMessage("§7Le KoTH §e" + name + " §7est entrain d'être capturé !");
+		}
+		
 		capper.sendMessage("§eVous §7êtes entrain de capturer le KoTH !");
 		capper.setCapping(this);
 		
@@ -273,9 +278,14 @@ public class Koth extends Game implements Capable {
 			return;
 		
 		capper.sendMessage("§eVous §7n'êtes plus entrain de capturer le KoTH !");
-		if ((capTime - capTimeLeft) > ConfigurationService.KOTH_KNOCK_ANNOUNCE_DELAY)
-			Bukkit.broadcastMessage("§e" + capper.getDisplayName() + " §7a été knock du KoTH (" + LongTime.setHMSFormatOnlySeconds(capTimeLeft) + ") !");
-
+		
+		if ((capTime - capTimeLeft) > ConfigurationService.KOTH_KNOCK_ANNOUNCE_DELAY) {
+			for (APIPlayer apiPlayer : APIPlayer.getOnlineAPIPlayers()) {
+				if (apiPlayer.getOptions().getBoolean(PlayerOption.GlobalOptions.CAPZONE_MESSAGES))
+					apiPlayer.sendMessage("§e" + capper.getDisplayName() + " §7a été knock du KoTH (" + LongTime.setHMSFormatOnlySeconds(capTimeLeft) + ") !");
+			}
+		}
+		
 		capper.setCapping(null);
 		
 		timeAtCap = -1L;
