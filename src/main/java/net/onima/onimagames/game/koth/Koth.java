@@ -152,7 +152,9 @@ public class Koth extends Game implements Capable {
             region.addFlag(Flag.PVP_TIMER_DENY_ENTRY);
             
             Cuboid cuboid = region.toCuboid();
-            Location loc = cuboid.getWorld().getHighestBlockAt(cuboid.getMinimumLocation().add(-0.5, 0, -0.5)).getLocation();
+            Location loc;
+            
+            loc = cuboid.getWorld().getHighestBlockAt(cuboid.getMinimumLocation().add(-0.5, 0, -0.5)).getLocation();
             
             for (Player player : cuboid.getPlayers()) {
             	if (APIPlayer.getPlayer(player).getTimeLeft(PvPTimerCooldown.class) > 0L)

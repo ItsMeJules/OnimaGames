@@ -3,7 +3,6 @@ package net.onima.onimagames.game;
 import java.time.Instant;
 import java.time.Month;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import net.onima.onimaapi.utils.Config;
 import net.onima.onimaapi.utils.ConfigurationService;
 import net.onima.onimaapi.utils.Methods;
 import net.onima.onimaapi.utils.Scheduler;
+import net.onima.onimaapi.workload.type.SchedulerWorkload;
 import net.onima.onimaapi.zone.Cuboid;
 import net.onima.onimaapi.zone.type.Region;
 import net.onima.onimagames.game.citadel.Citadel;
@@ -161,7 +161,7 @@ public abstract class Game implements FileSaver, Scheduler {
 	
 	@Override
 	public void startTime(Month month, int day, int hour, int minute) {
-		temporal = ZonedDateTime.now().withMonth(month.getValue()).withDayOfMonth(day).withHour(hour).withMinute(minute);
+		temporal = ZonedDateTime.now().withMonth(month.getValue()).withDayOfMonth(day).withHour(hour).withMinute(minute).withSecond(0);
 	}
 	
 	@Override
@@ -186,6 +186,7 @@ public abstract class Game implements FileSaver, Scheduler {
 			temporal = ZonedDateTime.ofInstant(Instant.ofEpochMilli(nextStart), OnimaAPI.TIME_ZONE);
 			
 			OnimaAPI.getScheduled().add(this);
+			OnimaAPI.getDistributor().get(OnimaAPI.getInstance().getWorkloadManager().getSchedulerId()).addWorkload(new SchedulerWorkload(this));
 		} else
 			OnimaAPI.getScheduled().remove(this);
 		
@@ -216,14 +217,8 @@ public abstract class Game implements FileSaver, Scheduler {
 		config.set(path + "created", created);
 		config.set(path + "creator", creator);
 		config.set(path + "scheduler-enabled", schedulerEnabled);
-		
-		if (temporal != null) {
-			config.set(path + "scheduler", 
-				temporal.get(ChronoField.MONTH_OF_YEAR) + ';' +
-				temporal.get(ChronoField.DAY_OF_MONTH) + ';' +
-				temporal.get(ChronoField.HOUR_OF_DAY) + ';' +
-				temporal.get(ChronoField.MINUTE_OF_HOUR));
-		}
+		config.set(path + "reset-time-cycle", timeRestart);
+		config.set(path + "next-start", getWhenItStarts());
 	}
 	
 	@Override
@@ -260,17 +255,27 @@ public abstract class Game implements FileSaver, Scheduler {
 	private static void initGamesStuff(Game game, String path, int rewardSize) {
 		game.setCreator(config.getString(path+"creator"));
 		game.setCreated(config.getLong(path+"created"));
-		game.setSchedulerEnabled(config.getBoolean(path+"scheduler-enabled"));
 		
 		for (Region region : Region.getRegions()) {
 			if (region.getName().equalsIgnoreCase(game.name + "_area"))
 				game.setRegion(region);
 		}
 		
-		if (game.schedulerEnabled) {
-			String[] scheduler = config.getString(path+"scheduler").split(";");
-			game.startTime(Month.of(Methods.toInteger(scheduler[0])), Methods.toInteger(scheduler[1]), Methods.toInteger(scheduler[2]), Methods.toInteger(scheduler[3]));
+		Long resetTime = config.getLong(path + ".reset-time-cycle");
+		Long nextStart = config.getLong(path + ".next-start");
+		
+		if (resetTime != null && nextStart != null) {
+			if (nextStart != -1) {
+				while (nextStart <= System.currentTimeMillis())
+					nextStart += resetTime;
+				
+				game.setTemporal(ZonedDateTime.ofInstant(Instant.ofEpochMilli(nextStart), OnimaAPI.TIME_ZONE));
+			}
+			
+			game.scheduleEvery(resetTime);
 		}
+		
+		game.setSchedulerEnabled(config.getBoolean(path+"scheduler-enabled"));
 	}
 	
 	public static void deserialize() {
@@ -280,7 +285,7 @@ public abstract class Game implements FileSaver, Scheduler {
 		int koths = 0, dtcs = 0, conquests = 0, dragons = 0, citadels = 0, games = 0;
 		
 		if (kothSection != null) {
-			for(String name : kothSection.getKeys(false)) {
+			for (String name : kothSection.getKeys(false)) {
 				String path = "GAMES.KOTH."+name+'.';
 				Koth koth = new Koth(name);
 				
@@ -290,8 +295,10 @@ public abstract class Game implements FileSaver, Scheduler {
 				
 				String loc1 = config.getString(path + "cap-zone-loc1");
 				
-				if (loc1 != null && !loc1.isEmpty())
+				if (loc1 != null && !loc1.isEmpty()) {
 					koth.setCapZone(new Cuboid(Methods.deserializeLocation(loc1, false), Methods.deserializeLocation(config.getString(path + "cap-zone-loc2"), false), true));
+					koth.location = koth.getCapZone().getCenterLocation();
+				}
 				
 				koths++;
 				games++;
@@ -307,6 +314,7 @@ public abstract class Game implements FileSaver, Scheduler {
 				
 				dtc.setPoint(config.getInt(path+"points"));
 				dtc.setBlock(Methods.deserializeLocation(config.getString(path+"location"), false).getBlock());
+				dtc.location = dtc.getBlock().getLocation();
 				
 				dtcs++;
 				games++;
@@ -332,9 +340,12 @@ public abstract class Game implements FileSaver, Scheduler {
 					
 						String loc1 = config.getString(path2 + "cap-zone-loc1");
 						
-						if (loc1 != null && !loc1.isEmpty())
+						if (loc1 != null && !loc1.isEmpty()) {
 							conquest.getZone(type).setCapZone(new Cuboid(Methods.deserializeLocation(loc1, false), Methods.deserializeLocation(config.getString(path2 + "cap-zone-loc2"), false), true));
-					
+							
+							if (type == ConquestType.MAIN)
+								conquest.location = conquest.getZone(type).getCapZone().getCenterLocation();
+						}
 					}
 					
 				}
@@ -370,9 +381,10 @@ public abstract class Game implements FileSaver, Scheduler {
 				
 				String loc1 = config.getString(path + "cap-zone-loc1");
 				
-				if (loc1 != null && !loc1.isEmpty())
+				if (loc1 != null && !loc1.isEmpty()) {
 					citadel.setCapZone(new Cuboid(Methods.deserializeLocation(loc1, false), Methods.deserializeLocation(config.getString(path + "cap-zone-loc2"), false), true));
-	
+					citadel.location = citadel.getCapZone().getCenterLocation();
+				}
 				
 				citadels++;
 				games++;
